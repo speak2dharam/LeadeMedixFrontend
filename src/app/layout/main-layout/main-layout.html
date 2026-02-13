@@ -1,0 +1,22 @@
+<div class="layout-wrapper">
+
+  <app-header (menuToggle)="toggleSidebar()"></app-header>
+
+  <div class="body-wrapper">
+
+    <app-side-bar [isOpen]="sidebarOpen()"></app-side-bar>
+
+    <!-- Overlay for Mobile -->
+     @if (sidebarOpen() && isMobile()) {
+        <div class="overlay" (click)="toggleSidebar()">
+    </div>
+     }
+    
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>

@@ -1,0 +1,36 @@
+<header class="header bg-white d-flex justify-content-between align-items-center px-3 border-bottom">
+
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn text-white d-lg-none" (click)="menuToggle.emit()">
+      <i class="bi bi-list fs-4"></i>FGDS
+    </button>
+    <h5 class="mb-0 text-dark">Unifycloud</h5>
+  </div>
+
+  <div class="position-relative">
+    <div class="profile-icon" (click)="toggleProfile()">
+        <img src="assets/img/svg/user.svg" alt="">
+      <i class="bi bi-person-circle fs-4"></i>
+    </div>
+    @if (profileOpen()) {
+<div class="profile-dropdown">
+      <div class="text-center py-3 border-bottom">
+        <img src="assets/img/svg/user.svg" height="60" alt="">
+        <div class="fw-semibold mt-2">Anil Tiwari</div>
+      </div>
+
+      <a class="dropdown-item">
+        <i class="bi bi-person me-2"></i>Profile
+      </a>
+
+      <div class="border-top p-3">
+        <button class="btn btn-info w-100 text-white">
+          <i class="bi bi-box-arrow-right me-2"></i>Sign out
+        </button>
+      </div>
+    </div>
+    }
+    
+  </div>
+
+</header>

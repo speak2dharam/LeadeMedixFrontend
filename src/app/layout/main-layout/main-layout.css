@@ -1,0 +1,27 @@
+.layout-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.body-wrapper {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #f1f3f5;
+}
+.overlay {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 60px);
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1040;
+}

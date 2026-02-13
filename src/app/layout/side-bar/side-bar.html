@@ -1,0 +1,79 @@
+<aside class="sidebar" [class.closed]="!isOpen">
+
+  <ul class="menu list-unstyled">
+
+    @for (item of menuItems; track item; let i = $index) {
+
+      <li>
+
+        <!-- Single Link -->
+        @if (!item.children) {
+
+          <div class="menu-item"
+     [routerLink]="item.route"
+     routerLinkActive="active"
+     [routerLinkActiveOptions]="{ exact: true }">
+
+            <div class="d-flex align-items-center">
+              <img [src]="item.icon" class="icon me-2" />
+              <span>{{ item.label }}</span>
+            </div>
+
+          </div>
+
+        }
+
+        <!-- Parent -->
+        @if (item.children) {
+
+          <div class="menu-item parent"
+               [class.active]="isParentActive(i)"
+               (click)="toggleMenu(i)">
+
+            <div class="d-flex align-items-center">
+              <img [src]="item.icon" class="icon me-2" />
+              <span>{{ item.label }}</span>
+            </div>
+
+            <img
+              [src]="expandedIndex() === i
+                    ? 'assets/icons/chevron-down.svg'
+                    : 'assets/icons/chevron-right.svg'"
+              class="chevron-icon"
+            />
+
+          </div>
+
+          <!-- Children -->
+          @if (expandedIndex() === i) {
+
+            <ul class="submenu m-0 p-0 bg-body-secondary">
+
+              @for (child of item.children; track child) {
+
+                <li [routerLink]="child.route"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }">
+
+                  <div class="d-flex align-items-center">
+                    <img [src]="child.icon" class="icon me-2" />
+                    <span>{{ child.label }}</span>
+                  </div>
+
+                </li>
+
+              }
+
+            </ul>
+
+          }
+
+        }
+
+      </li>
+
+    }
+
+  </ul>
+
+</aside>
