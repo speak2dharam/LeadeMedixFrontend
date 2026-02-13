@@ -1,28 +1,75 @@
 <div class="container d-flex justify-content-center align-items-center vh-100">
 
-  <div class="card p-4 shadow" style="width: 400px;">
-    <h4 class="text-center mb-4">Login</h4>
+    <div class="card p-4 shadow" style="width: 400px;">
+        <h4 class="text-center mb-4">Login</h4>
 
-    <form>
+        <form [formGroup]="loginform" (ngSubmit)="login()">
+            <div class="mb-3 text-center">
+                <h3 class="mb-1 fs-5">UnifyCloud Learning Portal</h3>
+                <p class="mb-0 fw-medium text-body-secondary">Sign in to your account</p>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label fw-medium">Email address</label>
+                <div class="input-group">
+                    <span class="input-group-text" id="email"><i class="fa-regular fa-user"></i></span>
+                    <input type="email" id="email" formControlName="email" class="form-control"
+                        placeholder="Enter your email" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+                @if (loginform.controls['email'].invalid && loginform.controls['email'].touched) {
+                  <div class="text-danger">
+                    <small>Enter valid email id</small>
+                  </div>
+                }
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label fw-medium">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" class="form-control" id="password" formControlName="password"
+                        placeholder="Enter your password" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+                @if (loginform.controls['password'].invalid && loginform.controls['password'].touched) {
+                  <div class="text-danger">
+                    <small>Enter valid password</small>
+                  </div>
+                }
+                
+            </div>
+            <div class="form-group form-check mb-1">
+                <input type="checkbox" class="form-check-input" name="remember" id="RememberMe">
+                <label class="form-check-label fw-medium" for="RememberMe">Remember me?</label>
+            </div>
+            <div>
+                @if (errorMessage!='') {
+                  <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <strong>Error</strong> {{errorMessage}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                }
+                @if (!showloader) {
+                  <div class="text-center">
+                    <button class="btn w-100 btn-info">Sign in</button>
+                  </div>
+                }
+                @if (showloader) {
+                  <div class="text-center">
+                    <button class="btn w-100 btn-info" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;
+                        <span role="status">Loading...</span>
+                    </button>
+                </div>
+            }
+            </div>
+            <div class="text-center mt-3">
+                <a href="javascript:void()" onclick="toggleLogin()" class="text-muted small">Forgot your
+                    password?</a>
+            </div>
+            <div class="mt-4 pt-3 border-top text-center">
+                <small class="text-muted">By signing in, you agree to our <a href="#">Terms of
+                        Service</a> and <a href="#">Privacy Policy</a></small>
+            </div>
+        </form>
 
-      <div class="mb-3">
-        <label>Email</label>
-        <input type="email" class="form-control" formControlName="email">
-      </div>
-
-      <div class="mb-3">
-        <label>Password</label>
-        <input type="password" class="form-control" formControlName="password">
-      </div>
-   
-      
-
-      <button class="btn btn-primary w-100">
-        erger
-      </button>
-
-    </form>
-
-  </div>
+    </div>
 
 </div>

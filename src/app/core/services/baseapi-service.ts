@@ -6,6 +6,6 @@ import { Injectable } from '@angular/core';
 export class BaseapiService {
   getApiBaseUrl():string{
     // return "https://ucelearning.azurewebsites.net";
-    return "https://localhost:7129/api"
+    return "https://localhost:7032/api"
   }
 }
