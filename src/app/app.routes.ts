@@ -5,7 +5,7 @@ import { NotFound } from './core/pages/not-found/not-found';
 import { Forbidden } from './core/pages/forbidden/forbidden';
 import { ServerError } from './core/pages/server-error/server-error';
 import { authGuard } from './core/guards/auth-guard';
-import { guestGuard } from './core/guards/guest-guard';
+import { loginGuard } from './core/guards/login-guard';
 
 export const routes: Routes = [
     {
@@ -31,7 +31,7 @@ export const routes: Routes = [
     },
     {
         path:'auth',
-        canActivate:[guestGuard],
+        canActivate:[loginGuard],
         loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
     },
     {

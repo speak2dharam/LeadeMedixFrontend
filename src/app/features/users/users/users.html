@@ -1,1 +1,69 @@
-<p>users works!</p>
+<div class="p-4">
+  <div class="flex items-center gap-3 mb-4">
+    <h2 class="text-xl font-semibold">Users</h2>
+
+    <div class="ml-auto flex items-center gap-2">
+      <!-- <input
+        type="text"
+        placeholder="Search..."
+        class="border rounded px-3 py-2 w-64"
+        (input)="onSearchChange(($event.target as HTMLInputElement).value)"
+      />
+
+      <select class="border rounded px-2 py-2" (change)="changePageSize(($event.target as HTMLSelectElement).value)">
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select> -->
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="py-6">Loading...</div>
+  } @else {
+    @if (error()) {
+      <div class="py-3 text-red-600">{{ error() }}</div>
+    }
+
+    <div class="border rounded overflow-hidden">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-left">
+            <th class="p-2 border-b">Name</th>
+            <th class="p-2 border-b">Email</th>
+            <th class="p-2 border-b">Role</th>
+            <th class="p-2 border-b">Active</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (users().length === 0) {
+            <tr>
+              <td class="p-3" colspan="4">No users found</td>
+            </tr>
+          } @else {
+            @for (u of users(); track u.id) {
+              <tr>
+                <td class="p-2 border-b">
+                  {{ (u.firstName || '') + ' ' + (u.lastName || '') }}
+                </td>
+                <td class="p-2 border-b">{{ u.email }}</td>
+                <td class="p-2 border-b">{{ u.roleId }}</td>
+                <td class="p-2 border-b">{{ u.isActive ? 'Yes' : 'No' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex items-center gap-3 mt-4">
+      <button class="border rounded px-3 py-2" [disabled]="!canPrev()" (click)="prev()">Prev</button>
+      <div>
+        Page <b>{{ pageNumber() }}</b> / <b>{{ totalPages() }}</b>
+        <span class="ml-2 text-gray-600">({{ totalCount() }} total)</span>
+      </div>
+      <button class="border rounded px-3 py-2" [disabled]="!canNext()" (click)="next()">Next</button>
+    </div>
+  }
+</div>

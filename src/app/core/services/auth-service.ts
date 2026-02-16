@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BaseapiService } from './baseapi-service';
-import { tap } from 'rxjs';
+import { map, tap } from 'rxjs';
 import { LoginRequest, LoginResponse } from '../models/auth.model';
 import { ApiResponse } from '../models/api-response.model';
 
@@ -15,7 +15,8 @@ export class AuthService {
   login(payload: LoginRequest) {
     return this.http.post<ApiResponse<LoginResponse>>(
       `${this.baseUrl}/login`,
-      payload
+      payload,
+      { withCredentials: true }
     ).pipe(
       tap(res => {
         if (res.success) {
@@ -26,34 +27,33 @@ export class AuthService {
   }
 
   refreshToken() {
-    const refreshToken = this.getRefreshToken();
-
-    return this.http.post<ApiResponse<LoginResponse>>(
-      `${this.baseUrl}/refresh`,
-      { refreshToken }
-    ).pipe(
-      tap(res => {
-        if (res.success) {
-          this.setSession(res.data);
+    return this.http.post<ApiResponse<LoginResponse>>(`${this.baseUrl}/refresh`, {}, { withCredentials: true }).pipe(
+      map(res => {
+        if (!res.success || !res.data?.accessToken) {
+          throw new Error('Unable to refresh access token');
         }
+
+        this.setSession(res.data);
+        return res.data.accessToken;
       })
     );
   }
 
   logout() {
-    return this.http.post(`${this.baseUrl}/logout`, {}).pipe(
+    return this.http.post(`${this.baseUrl}/logout`, {}, { withCredentials: true }).pipe(
       tap(() => this.clearSession())
     );
   }
 
   private setSession(data: LoginResponse) {
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-    localStorage.setItem('user', JSON.stringify(data));
+
+    sessionStorage.setItem('accessToken', data.accessToken);
+    //localStorage.setItem('refreshToken', data.refreshToken);
+    sessionStorage.setItem('user', JSON.stringify(data));
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return sessionStorage.getItem('accessToken');
   }
 
   getRefreshToken(): string | null {
@@ -61,14 +61,14 @@ export class AuthService {
   }
 
   clearSession() {
-    localStorage.clear();
+    sessionStorage.clear();
   }
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('accessToken');
+    return !!sessionStorage.getItem('accessToken');
   }
 
   getUser() {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
 
