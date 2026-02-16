@@ -6,6 +6,7 @@ import { Forbidden } from './core/pages/forbidden/forbidden';
 import { ServerError } from './core/pages/server-error/server-error';
 import { authGuard } from './core/guards/auth-guard';
 import { loginGuard } from './core/guards/login-guard';
+import { roleGuard } from './core/guards/role-guard-guard';
 
 export const routes: Routes = [
     {
@@ -36,10 +37,10 @@ export const routes: Routes = [
     },
     {
         path:'users',
-        canActivate: [authGuard],
+        canActivate: [authGuard, roleGuard],
         component:MainLayout,
         loadChildren: () => import('./features/users/users.routes').then(m => m.USERS_ROUTES),
-        data: { breadcrumb: 'Users'  }
+        data: { breadcrumb: 'Users', roles: [0] }
     },
     
     { path: '404', component: NotFound },

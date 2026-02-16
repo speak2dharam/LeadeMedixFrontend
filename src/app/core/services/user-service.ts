@@ -14,7 +14,6 @@ export class UserService {
   private baseUrl = inject(BaseapiService).getApiBaseUrl(); // should be https://localhost:7032/api
 
   getUsers(req: PaginationRequest): Observable<ApiResponse<PaginatedResponse<UserResponseDto>>> {
-    debugger
     let params = new HttpParams()
       .set('pageNumber', req.pageNumber)
       .set('pageSize', req.pageSize);

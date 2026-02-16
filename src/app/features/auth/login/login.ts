@@ -27,7 +27,6 @@ export class Login {
 
   login() {
     if (this.loginform.valid) {
-      debugger
       this.showloader = true;
       this.authService.login(this.loginform.value).subscribe({
         next: (res) => {

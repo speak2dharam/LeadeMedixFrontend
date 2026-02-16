@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth-service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const accessToken = authService.getAccessToken();
+  const accessToken = authService.isAccessTokenValid() ? authService.getAccessToken() : null;
 
   let clonedReq = req;
   if (accessToken) {
@@ -34,8 +34,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return next(retryReq);
           }),
           catchError(refreshError => {
-            authService.clearSession();
-            window.location.href = '/auth/login';
+            authService.forceLogout();
             return throwError(() => refreshError);
           })
         );

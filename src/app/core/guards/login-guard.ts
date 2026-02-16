@@ -1,18 +1,18 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { AuthService } from '../services/auth-service';
 
-export const loginGuard: CanActivateFn = (route, state) => {
+export const loginGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-debugger
-  // ✅ If user is already logged in, redirect them away
-  if (authService.isLoggedIn()) {
-    router.navigate(['/dashboard']); // or your home route
-    return false;
+
+  if (authService.isAccessTokenValid()) {
+    return router.parseUrl('/dashboard');
   }
 
-  // ✅ Otherwise allow access to login/register
-
-  return true;
+  return authService.refreshToken().pipe(
+    map(() => router.parseUrl('/dashboard')),
+    catchError(() => of(true))
+  );
 };
