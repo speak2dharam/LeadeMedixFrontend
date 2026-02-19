@@ -5,10 +5,11 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken: string | null;
   userId: number;
   email: string;
-  userRole: number;
+  name?: string;
+  roles: string[];
   firstName?: string;
   middleName?: string;
   lastName?: string;

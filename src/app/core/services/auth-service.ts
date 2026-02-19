@@ -130,19 +130,20 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
-  getUserRole(): number | null {
+  getUserRoles(): string[] {
     const user = this.getUser();
-    if (user?.userRole !== undefined && user?.userRole !== null) {
-      const parsedRole = Number(user.userRole);
-      return Number.isNaN(parsedRole) ? null : parsedRole;
+    if (Array.isArray(user?.roles) && user.roles.length > 0) {
+      return user.roles
+        .map((role: unknown) => String(role).trim())
+        .filter((role: string) => role.length > 0);
     }
 
     const payload = this.getAccessTokenPayload();
     if (!payload) {
-      return null;
+      return [];
     }
 
-    return this.extractRole(payload);
+    return this.extractRoles(payload);
   }
 
   private hydrateUserFromToken(accessToken: string) {
@@ -152,11 +153,12 @@ export class AuthService {
     }
 
     const currentUser = this.getUser() ?? {};
+    const tokenRoles = this.extractRoles(payload);
     const mergedUser = {
       ...currentUser,
       userId: this.extractUserId(payload) ?? currentUser.userId,
       email: (payload.email as string | undefined) ?? currentUser.email,
-      userRole: this.extractRole(payload) ?? currentUser.userRole
+      roles: tokenRoles.length > 0 ? tokenRoles : (currentUser.roles ?? [])
     };
 
     sessionStorage.setItem('user', JSON.stringify(mergedUser));
@@ -197,23 +199,24 @@ export class AuthService {
     }
   }
 
-  private extractRole(payload: JwtPayload): number | null {
+  private extractRoles(payload: JwtPayload): string[] {
     const roleValue =
       payload['role'] ??
       payload['roles'] ??
       payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
     if (roleValue === undefined || roleValue === null) {
-      return null;
+      return [];
     }
 
-    if (Array.isArray(roleValue) && roleValue.length > 0) {
-      const parsed = Number(roleValue[0]);
-      return Number.isNaN(parsed) ? null : parsed;
+    if (Array.isArray(roleValue)) {
+      return roleValue
+        .map((role: unknown) => String(role).trim())
+        .filter((role: string) => role.length > 0);
     }
 
-    const parsed = Number(roleValue);
-    return Number.isNaN(parsed) ? null : parsed;
+    const normalizedRole = String(roleValue).trim();
+    return normalizedRole ? [normalizedRole] : [];
   }
 
   private extractUserId(payload: JwtPayload): number | null {
