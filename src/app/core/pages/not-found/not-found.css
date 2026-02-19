@@ -1,0 +1,78 @@
+:host {
+  --page-bg: linear-gradient(160deg, #f4f7fb 0%, #eef2f8 100%);
+  --accent: #1d4ed8;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --card-border: #dbe4f0;
+  display: block;
+}
+
+.status-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--page-bg);
+}
+
+.status-card {
+  width: min(540px, 100%);
+  background: #ffffff;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.status-code {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.2vw, 2rem);
+  color: var(--text-main);
+}
+
+.status-message {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.status-actions {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn {
+  min-width: 150px;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+
+.btn-light {
+  border: 1px solid #d7e0eb;
+  color: #1e293b;
+}
+
+@media (max-width: 575px) {
+  .status-card {
+    padding: 32px 20px;
+    border-radius: 14px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

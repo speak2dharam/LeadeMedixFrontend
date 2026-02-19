@@ -1,1 +1,13 @@
-<p>forbidden works!</p>
+<section class="status-page">
+  <div class="status-card">
+    <p class="status-code">403</p>
+    <h1>Access Denied</h1>
+    <p class="status-message">
+      You do not have permission to view this page. Contact your administrator if you believe this is a mistake.
+    </p>
+    <div class="status-actions">
+      <a routerLink="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+      <button type="button" class="btn btn-light" (click)="goBack()">Go Back</button>
+    </div>
+  </div>
+</section>

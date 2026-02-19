@@ -1,1 +1,13 @@
-<p>server-error works!</p>
+<section class="status-page">
+  <div class="status-card">
+    <p class="status-code">500</p>
+    <h1>Something Went Wrong</h1>
+    <p class="status-message">
+      An unexpected server error occurred. Please try again in a moment.
+    </p>
+    <div class="status-actions">
+      <button type="button" class="btn btn-primary" (click)="reloadPage()">Try Again</button>
+      <a routerLink="/dashboard" class="btn btn-light">Go to Dashboard</a>
+    </div>
+  </div>
+</section>
