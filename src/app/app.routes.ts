@@ -40,7 +40,7 @@ export const routes: Routes = [
         canActivate: [authGuard, roleGuard],
         component:MainLayout,
         loadChildren: () => import('./features/users/users.routes').then(m => m.USERS_ROUTES),
-        data: { breadcrumb: 'Users', roles: ['Admin'] }
+        data: { breadcrumb: 'Users', roles: ['ADMIN'] }
     },
     
     { path: '404', component: NotFound },

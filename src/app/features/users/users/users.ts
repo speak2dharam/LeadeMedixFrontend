@@ -54,7 +54,7 @@ export class Users {
             this.error.set(res.message || 'Failed to load users');
             return;
           }
-
+          console.log(res)
           this.users.set(res.data.items ?? []);
           this.totalCount.set(res.data.totalCount ?? 0);
           this.totalPages.set(res.data.totalPages ?? 1);

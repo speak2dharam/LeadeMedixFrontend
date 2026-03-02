@@ -12,6 +12,13 @@ type JwtPayload = Record<string, unknown> & {
   nameid?: string | number;
 };
 
+type AuthSessionUser = {
+  userId: number | null;
+  email: string | null;
+  name?: string | null;
+  roles: string[];
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -70,7 +77,13 @@ export class AuthService {
 
   private setSession(data: LoginResponse) {
     sessionStorage.setItem('accessToken', data.accessToken);
-    sessionStorage.setItem('user', JSON.stringify(data));
+    const user: AuthSessionUser = {
+      userId: Number.isFinite(Number(data.userId)) ? Number(data.userId) : null,
+      email: data.email ?? null,
+      name: data.name ?? null,
+      roles: this.normalizeRoles(data.roles)
+    };
+    sessionStorage.setItem('user', JSON.stringify(user));
     this.hydrateUserFromToken(data.accessToken);
   }
 
@@ -125,17 +138,65 @@ export class AuthService {
     return this.isAccessTokenValid();
   }
 
-  getUser() {
+  getUser(): AuthSessionUser | null {
     const user = sessionStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    if (!user) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(user) as Partial<AuthSessionUser>;
+      return {
+        userId: typeof parsed.userId === 'number' ? parsed.userId : null,
+        email: typeof parsed.email === 'string' ? parsed.email : null,
+        name: typeof parsed.name === 'string' ? parsed.name : null,
+        roles: this.normalizeRoles(parsed.roles),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  getUserId(): number | null {
+    const user = this.getUser();
+    if (typeof user?.userId === 'number') {
+      return user.userId;
+    }
+
+    const payload = this.getAccessTokenPayload();
+    return payload ? this.extractUserId(payload) : null;
+  }
+
+  getUserEmail(): string | null {
+    const user = this.getUser();
+    if (user?.email) {
+      return user.email;
+    }
+
+    const payload = this.getAccessTokenPayload();
+    const email = payload?.email;
+    return typeof email === 'string' ? email : null;
+  }
+
+  getUserName(): string | null {
+    const user = this.getUser();
+    if (user?.name) {
+      return user.name;
+    }
+
+    const payload = this.getAccessTokenPayload();
+    const name =
+      payload?.['unique_name'] ??
+      payload?.['name'] ??
+      payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+
+    return typeof name === 'string' && name.trim().length > 0 ? name.trim() : null;
   }
 
   getUserRoles(): string[] {
     const user = this.getUser();
     if (Array.isArray(user?.roles) && user.roles.length > 0) {
-      return user.roles
-        .map((role: unknown) => String(role).trim())
-        .filter((role: string) => role.length > 0);
+      return this.normalizeRoles(user.roles);
     }
 
     const payload = this.getAccessTokenPayload();
@@ -152,13 +213,19 @@ export class AuthService {
       return;
     }
 
-    const currentUser = this.getUser() ?? {};
+    const currentUser: AuthSessionUser = this.getUser() ?? {
+      userId: null,
+      email: null,
+      name: null,
+      roles: [],
+    };
     const tokenRoles = this.extractRoles(payload);
-    const mergedUser = {
+    const mergedUser: AuthSessionUser = {
       ...currentUser,
+      name: currentUser.name ?? null,
       userId: this.extractUserId(payload) ?? currentUser.userId,
       email: (payload.email as string | undefined) ?? currentUser.email,
-      roles: tokenRoles.length > 0 ? tokenRoles : (currentUser.roles ?? [])
+      roles: tokenRoles.length > 0 ? tokenRoles : this.normalizeRoles(currentUser.roles)
     };
 
     sessionStorage.setItem('user', JSON.stringify(mergedUser));
@@ -210,13 +277,10 @@ export class AuthService {
     }
 
     if (Array.isArray(roleValue)) {
-      return roleValue
-        .map((role: unknown) => String(role).trim())
-        .filter((role: string) => role.length > 0);
+      return this.normalizeRoles(roleValue);
     }
 
-    const normalizedRole = String(roleValue).trim();
-    return normalizedRole ? [normalizedRole] : [];
+    return this.normalizeRoles([roleValue]);
   }
 
   private extractUserId(payload: JwtPayload): number | null {
@@ -231,5 +295,15 @@ export class AuthService {
 
     const parsed = Number(userIdValue);
     return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  private normalizeRoles(roles: unknown): string[] {
+    if (!Array.isArray(roles)) {
+      return [];
+    }
+
+    return roles
+      .map((role: unknown) => String(role).trim().toUpperCase())
+      .filter((role: string) => role.length > 0);
   }
 }
