@@ -1,0 +1,107 @@
+<div class="datatable-shell">
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <h5 class="mb-0">{{ title }}</h5>
+
+    <div class="ms-auto d-flex flex-wrap align-items-center gap-2">
+      <input
+        type="text"
+        class="form-control table-search"
+        [placeholder]="searchPlaceholder"
+        [ngModel]="query.search ?? ''"
+        (ngModelChange)="onSearchInput($event)"
+      />
+
+      <select
+        class="form-select table-size"
+        [ngModel]="query.pageSize"
+        (ngModelChange)="changePageSize($event)"
+      >
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-danger py-2 mb-3">{{ error }}</div>
+  }
+
+  @if (loading) {
+    <div class="py-4">Loading...</div>
+  }
+
+  @if (!loading) {
+    <div class="table-responsive border rounded">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            @for (column of columns; track column.key) {
+              <th
+                (click)="toggleSort(column)"
+                [class.sortable]="column.sortable"
+                scope="col"
+              >
+                <span>{{ column.header }}</span>
+                <span class="sort-indicator">{{ sortIndicator(column) }}</span>
+              </th>
+            }
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (rows.length === 0) {
+            <tr>
+              <td class="text-center py-3" [attr.colspan]="columns.length">No records found</td>
+            </tr>
+          }
+
+          @for (row of rows; track trackByRow($index, row)) {
+            @if (rowTemplate) {
+              <ng-container
+                [ngTemplateOutlet]="rowTemplate"
+                [ngTemplateOutletContext]="{ $implicit: row, columns: columns }"
+              ></ng-container>
+            } @else {
+              <tr>
+                @for (column of columns; track column.key) {
+                  <td>{{ resolveCell(row, column.key) }}</td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer d-flex flex-column flex-md-row align-items-md-center gap-2 mt-3">
+      <div class="small text-muted">
+        Showing {{ startEntry }} to {{ endEntry }} of {{ totalRecords }} entries
+      </div>
+
+      <nav class="ms-md-auto" aria-label="Pagination">
+        <ul class="pagination mb-0 pagination-sm">
+          <li class="page-item" [class.disabled]="!canPrev">
+            <button class="page-link" type="button" [disabled]="!canPrev" (click)="prev()">
+              Previous
+            </button>
+          </li>
+
+          @for (page of visiblePages; track page) {
+            <li class="page-item" [class.active]="query.pageNumber === page">
+              <button class="page-link" type="button" (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            </li>
+          }
+
+          <li class="page-item" [class.disabled]="!canNext">
+            <button class="page-link" type="button" [disabled]="!canNext" (click)="next()">
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  }
+</div>

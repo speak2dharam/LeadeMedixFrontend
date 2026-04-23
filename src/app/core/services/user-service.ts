@@ -21,6 +21,12 @@ export class UserService {
     if (req.search?.trim()) {
       params = params.set('search', req.search.trim());
     }
+    if (req.sortBy?.trim()) {
+      params = params.set('sortBy', req.sortBy.trim());
+    }
+    if (req.sortDir?.trim()) {
+      params = params.set('sortDir', req.sortDir.trim());
+    }
 
     return this.http.get<ApiResponse<PaginatedResponse<UserResponseDto>>>(
       `${this.baseUrl}/Users`,

@@ -1,0 +1,56 @@
+.datatable-shell .table-search {
+  width: 260px;
+  max-width: 100%;
+}
+
+.datatable-shell .table-size {
+  width: 90px;
+}
+
+.datatable-shell .table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.datatable-shell table {
+  min-width: 680px;
+}
+
+.datatable-shell th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.datatable-shell .sort-indicator {
+  margin-left: 6px;
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.datatable-shell .table-footer .pagination {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.datatable-shell .table-footer .page-link {
+  min-width: 40px;
+  text-align: center;
+}
+
+@media (max-width: 767.98px) {
+  .datatable-shell .table-search {
+    width: 100%;
+  }
+
+  .datatable-shell .table-size {
+    width: 100%;
+  }
+
+  .datatable-shell .table-footer {
+    align-items: flex-start;
+  }
+
+  .datatable-shell .table-footer .pagination {
+    justify-content: flex-start;
+  }
+}

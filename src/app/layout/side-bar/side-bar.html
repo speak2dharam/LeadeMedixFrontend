@@ -1,79 +1,90 @@
-<aside class="sidebar" [class.closed]="!isOpen">
-
-  <ul class="menu list-unstyled">
-
-    @for (item of menuItems; track item; let i = $index) {
-
-      <li>
-
-        <!-- Single Link -->
-        @if (!item.children) {
-
-          <div class="menu-item"
-     [routerLink]="item.route"
-     routerLinkActive="active"
-     [routerLinkActiveOptions]="{ exact: true }">
-
-            <div class="d-flex align-items-center">
-              <img [src]="item.icon" class="icon me-2" />
-              <span>{{ item.label }}</span>
-            </div>
-
-          </div>
-
-        }
-
-        <!-- Parent -->
-        @if (item.children) {
-
-          <div class="menu-item parent"
-               [class.active]="isParentActive(i)"
-               (click)="toggleMenu(i)">
-
-            <div class="d-flex align-items-center">
-              <img [src]="item.icon" class="icon me-2" />
-              <span>{{ item.label }}</span>
-            </div>
-
-            <img
-              [src]="expandedIndex() === i
-                    ? 'assets/img/svg/chevron-down.svg'
-                    : 'assets/img/svg/chevron-up.svg'"
-              class="chevron-icon"
-            />
-
-          </div>
-
-          <!-- Children -->
-          @if (expandedIndex() === i) {
-
-            <ul class="submenu m-0 p-0 bg-body-secondary">
-
-              @for (child of item.children; track child) {
-
-                <li [routerLink]="child.route"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }">
-
-                  <div class="d-flex align-items-center">
-                    <img [src]="child.icon" class="icon me-2" />
-                    <span>{{ child.label }}</span>
-                  </div>
-
-                </li>
-
-              }
-
-            </ul>
-
-          }
-
-        }
-
-      </li>
-
+<aside
+  class="sidebar"
+  [class.mobile]="isMobile"
+  [class.mobile-open]="isMobile && isOpen"
+  [class.expanded]="isExpanded()"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <div class="brand-row">
+    <div class="brand-icon">LM</div>
+    @if (isExpanded()) {
+      <div class="brand-text">
+        <h6>LeadMedix</h6>
+        <small>Control Panel</small>
+      </div>
     }
+  </div>
 
+  <ul class="menu list-unstyled m-0">
+    @for (item of menuItems(); track item.label) {
+      <li class="menu-node">
+        @if (!item.children?.length) {
+          <a
+            class="menu-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            [title]="!isExpanded() ? item.label : ''"
+            (click)="onItemClick()"
+          >
+            <span class="icon-wrap">
+              @if (item.icon) {
+                <img [src]="item.icon" [alt]="item.label + ' icon'" class="menu-icon-svg" />
+              } @else {
+                <i [class]="'bi ' + getIconClass(item.label)"></i>
+              }
+            </span>
+            @if (isExpanded()) {
+              <span class="menu-label">{{ item.label }}</span>
+            }
+          </a>
+        }
+
+        @if (item.children?.length) {
+          <button
+            type="button"
+            class="menu-item parent-btn"
+            [class.active]="isParentRouteActive(item.label)"
+            (click)="toggleMenu(item.label)"
+            [title]="!isExpanded() ? item.label : ''"
+          >
+            <span class="icon-wrap">
+              @if (item.icon) {
+                <img [src]="item.icon" [alt]="item.label + ' icon'" class="menu-icon-svg" />
+              } @else {
+                <i [class]="'bi ' + getIconClass(item.label)"></i>
+              }
+            </span>
+            @if (isExpanded()) {
+              <span class="menu-label">{{ item.label }}</span>
+              <i
+                class="bi bi-chevron-right parent-chevron ms-auto"
+                [class.rotate]="isMenuOpen(item.label)"
+              ></i>
+            }
+          </button>
+
+          @if (isExpanded() && isMenuOpen(item.label)) {
+            <ul class="submenu list-unstyled">
+              @for (child of item.children; track child.label) {
+                <li>
+                  <a
+                    class="submenu-item"
+                    [routerLink]="child.route"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    (click)="onItemClick()"
+                  >
+                    <span class="submenu-dot"></span>
+                    <span>{{ child.label }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        }
+      </li>
+    }
   </ul>
-
 </aside>

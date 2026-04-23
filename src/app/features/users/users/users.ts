@@ -1,91 +1,95 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { UserService } from '../../../core/services/user-service';
 import { UserResponseDto } from '../../../core/models/user.model';
+import { Datatable } from '../../../core/datatable/datatable';
+import { DatatableColumn, DatatableQuery } from '../../../core/datatable/datatable.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-users',
-  imports: [],
+  imports: [Datatable],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
 export class Users {
   private usersService = inject(UserService);
+  private usersRequestSub: Subscription | null = null;
 
-  // paging state
-  pageNumber = signal(1);
-  pageSize = signal(10);
-  search = signal('');
+  query = signal<DatatableQuery>({
+    pageNumber: 1,
+    pageSize: 10,
+    search: '',
+    sortBy: undefined,
+    sortDir: undefined,
+  });
 
-  // data state
   loading = signal(false);
   error = signal<string | null>(null);
-  message = signal<string | null>(null);
-
   users = signal<UserResponseDto[]>([]);
-  totalCount = signal(0);
+  totalRecords = signal(0);
   totalPages = signal(0);
 
-  // derived
-  canPrev = computed(() => this.pageNumber() > 1);
-  canNext = computed(() => this.pageNumber() < this.totalPages());
+  columns: DatatableColumn[] = [
+    { key: 'name', header: 'Name', sortable: true },
+    { key: 'email', header: 'Email', sortable: true },
+    { key: 'mobile', header: 'Mobile', sortable: true },
+    { key: 'isActive', header: 'Active', sortable: true },
+  ];
 
   constructor() {
-    // auto-load whenever paging/search changes
-    effect(() => {
-      // effect tracks signals used inside
-      void this.loadUsers();
+    effect((onCleanup) => {
+      const currentQuery = this.query();
+      this.loadUsers(currentQuery);
+      onCleanup(() => {
+        this.usersRequestSub?.unsubscribe();
+      });
     });
   }
 
-  async loadUsers() {
+  onQueryChange(nextQuery: DatatableQuery) {
+    this.query.set(nextQuery);
+  }
+
+  fullName(user: UserResponseDto): string {
+    const firstName = user.firstName?.trim() ?? '';
+    const lastName = user.lastName?.trim() ?? '';
+    return `${firstName} ${lastName}`.trim() || '-';
+  }
+
+  private loadUsers(query: DatatableQuery) {
     this.loading.set(true);
     this.error.set(null);
-    this.message.set(null);
+    this.usersRequestSub?.unsubscribe();
 
-    this.usersService
+    this.usersRequestSub = this.usersService
       .getUsers({
-        pageNumber: this.pageNumber(),
-        pageSize: this.pageSize(),
-        search: this.search(),
+        pageNumber: query.pageNumber,
+        pageSize: query.pageSize,
+        search: query.search,
+        sortBy: query.sortBy,
+        sortDir: query.sortDir,
       })
       .subscribe({
         next: (res) => {
           if (!res.success || !res.data) {
             this.error.set(res.message || 'Failed to load users');
+            this.users.set([]);
+            this.totalRecords.set(0);
+            this.totalPages.set(1);
             return;
           }
-          console.log(res)
-          this.users.set(res.data.items ?? []);
-          this.totalCount.set(res.data.totalCount ?? 0);
+
+          this.users.set(res.data.data ?? []);
+          this.totalRecords.set(res.data.totalRecords ?? 0);
           this.totalPages.set(res.data.totalPages ?? 1);
-          this.message.set(res.message || null);
         },
         error: (err) => {
-          // your interceptor should refresh & retry automatically if 401
           this.error.set(err?.error?.message || 'Something went wrong');
+          this.users.set([]);
+          this.totalRecords.set(0);
+          this.totalPages.set(1);
         },
         complete: () => this.loading.set(false),
       });
-  }
-
-  onSearchChange(value: string) {
-    this.search.set(value);
-    this.pageNumber.set(1);
-  }
-
-  prev() {
-    if (!this.canPrev()) return;
-    this.pageNumber.set(this.pageNumber() - 1);
-  }
-
-  next() {
-    if (!this.canNext()) return;
-    this.pageNumber.set(this.pageNumber() + 1);
-  }
-
-  changePageSize(value: string) {
-    const size = Number(value);
-    this.pageSize.set(Number.isFinite(size) && size > 0 ? size : 10);
-    this.pageNumber.set(1);
   }
 }

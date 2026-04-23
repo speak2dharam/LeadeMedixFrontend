@@ -4,7 +4,11 @@
 
   <div class="body-wrapper">
 
-    <app-side-bar [isOpen]="sidebarOpen()"></app-side-bar>
+    <app-side-bar
+      [isOpen]="sidebarOpen()"
+      [isMobile]="isMobile()"
+      (itemNavigate)="isMobile() ? toggleSidebar() : null"
+    ></app-side-bar>
 
     <!-- Overlay for Mobile -->
      @if (sidebarOpen() && isMobile()) {
